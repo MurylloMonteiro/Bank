@@ -1,70 +1,58 @@
-#  Ratbank
+# Ratbank
 
-**Ratbank** é um projeto **educacional** que simula um **sistema bancário**, criado com o objetivo de aprendizado e prática de desenvolvimento de aplicações web modernas.
+Aplicação educacional que simula uma conta bancária. O front-end usa Angular; a API usa Java, Spring Boot, Spring Security, JWT, Spring Data JPA e SQLite. Não movimenta dinheiro real.
 
-O projeto utiliza **Java Spring Boot** no **back-end** e **Angular (TypeScript)** no **front-end**, abordando conceitos fundamentais como **APIs REST**, **integração front-end/back-end** e **arquitetura de aplicações web**.
+## Funcionalidades
 
----
+- Cadastro e login com senha protegida por BCrypt.
+- Consulta do saldo, dados da conta e chave PIX.
+- Depósito e saque na conta autenticada.
+- Transferência PIX entre contas Ratbank.
+- Histórico de depósitos, saques e transferências recebidas/enviadas.
+- Interface responsiva para celular e desktop.
 
-##  Objetivo do Projeto
+## Requisitos
 
-- Simular o funcionamento básico de um sistema bancário
-- Aplicar conceitos de desenvolvimento full stack
-- Praticar a criação e consumo de APIs REST
-- Entender a comunicação entre front-end e back-end
-- Trabalhar com arquitetura de aplicações web
+- Java 25 e Maven (ou Maven Wrapper).
+- Node.js compatível com Angular 21 (Node 20.19 ou superior) e npm.
 
----
+## Configuração e execução
 
-##  Tecnologias Utilizadas
+O SQLite cria o arquivo `BackEndApi/ratbank.db` automaticamente na primeira execução. Não é necessário instalar ou iniciar um servidor de banco de dados. Opcionalmente, configure a chave JWT:
 
-### Back-end
-- **Java**
-- **Spring Boot**
-- **Spring Web (REST)**
-- **Maven**
+```sh
+export JWT_SECRET='uma-chave-secreta-com-pelo-menos-32-caracteres'
+```
 
-### Front-end
-- **Angular**
-- **TypeScript**
-- **HTML5**
-- **CSS3**
+Inicie a API:
 
----
+```sh
+cd BackEndApi
+./mvnw spring-boot:run
+```
 
-##  Funcionalidades (Simuladas)
+Em outro terminal, instale as dependências e inicie o Angular:
 
-- Criação e gerenciamento de contas bancárias
-- Consulta de saldo
-- Operações básicas (ex: crédito e débito)
-- Comunicação via API REST
+```sh
+cd FrontEnd
+npm install
+npm start
+```
 
->  Todas as funcionalidades são **simulações** e não representam um sistema bancário real.
+O Angular fica disponível em `http://localhost:4200` e a API em `http://localhost:8080`. O endereço da API está definido em `FrontEnd/src/app/app.component.ts`.
 
----
+## Rotas principais
 
-##  Arquitetura
+| Método | Rota | Acesso |
+| --- | --- | --- |
+| `POST` | `/auth/create-account` | Público |
+| `POST` | `/auth/login` | Público |
+| `GET` | `/account` | JWT |
+| `GET` | `/account/transactions` | JWT |
+| `PUT` | `/account/deposit` | JWT |
+| `PUT` | `/account/withdraw` | JWT |
+| `POST` | `/transation` | JWT |
 
-O projeto segue uma arquitetura **cliente-servidor**:
+Operações protegidas recebem `Authorization: Bearer <token>`. Depósito e saque aceitam `{ "value": 25.50 }`. PIX aceita `{ "pixReceived": "chave-do-destinatario", "value": 25.50 }`; a conta remetente é identificada pelo token.
 
-- **Back-end (Spring Boot)**: responsável pela lógica de negócio e exposição das APIs REST
-- **Front-end (Angular)**: responsável pela interface do usuário e consumo das APIs
-
----
-
-##  Como Executar o Projeto
-
-### Pré-requisitos
-
-- Java 17 ou superior
-- Node.js
-- Angular CLI
-- Maven
-
----
-
-### Back-end
-
-1. Acesse a pasta do back-end:
-```bash
-cd backend
+O saldo inicial é R$ 100,00 para facilitar a demonstração. Valores são armazenados com precisão decimal de duas casas. O histórico registra os movimentos de forma transacional junto às alterações de saldo. O arquivo do banco fica localmente em `BackEndApi/ratbank.db` e está ignorado pelo Git.

@@ -1,5 +1,8 @@
 HELP.md
 target/
+ratbank.db
+ratbank.db-shm
+ratbank.db-wal
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

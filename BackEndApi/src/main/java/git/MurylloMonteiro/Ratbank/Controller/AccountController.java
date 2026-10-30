@@ -1,53 +1,49 @@
 package git.MurylloMonteiro.Ratbank.Controller;
 
+import java.util.List;
 import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
+import git.MurylloMonteiro.Ratbank.Model.TransationModel;
 import git.MurylloMonteiro.Ratbank.Model.DTO.Account.DepositRequest;
 import git.MurylloMonteiro.Ratbank.Model.DTO.Account.WithDrawRequest;
 import git.MurylloMonteiro.Ratbank.Model.DTO.UserDTO.UserResponse;
 import git.MurylloMonteiro.Ratbank.Service.AccountService;
 import git.MurylloMonteiro.Ratbank.Service.Jwt.JwtService;
 
-
 @RestController
 @RequestMapping("/account")
 public class AccountController {
+    private final AccountService accounts;
+    private final JwtService jwt;
 
-    @Autowired
-    private AccountService accountService;
+    public AccountController(AccountService accounts, JwtService jwt) { this.accounts = accounts; this.jwt = jwt; }
 
-    @Autowired
-    private JwtService jwtService;
+    @GetMapping
+    public UserResponse details(@RequestHeader("Authorization") String authorization) {
+        return accounts.getAll(userId(authorization));
+    }
+
+    @GetMapping("/transactions")
+    public List<TransationModel> history(@RequestHeader("Authorization") String authorization) {
+        return accounts.history(userId(authorization));
+    }
 
     @PutMapping("/deposit")
-    public ResponseEntity<String> depositAccount(@RequestBody DepositRequest deposit) {
-        return accountService.depositAccount(deposit.getNumberAccount(), deposit.getValue());
+    public ResponseEntity<Void> deposit(@RequestHeader("Authorization") String authorization, @RequestBody DepositRequest request) {
+        if (request == null || request.getValue() == null) throw new IllegalArgumentException("Informe o valor do depósito.");
+        accounts.deposit(userId(authorization), request.getValue());
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/withdraw")
-    public ResponseEntity<String> withDrawAccount(@RequestBody WithDrawRequest withDrawRequest){
-        return accountService.withDrawAccount(withDrawRequest.getNumberAccount(), withDrawRequest.getValue());
+    public ResponseEntity<Void> withdraw(@RequestHeader("Authorization") String authorization, @RequestBody WithDrawRequest request) {
+        if (request == null || request.getValue() == null) throw new IllegalArgumentException("Informe o valor do saque.");
+        accounts.withdraw(userId(authorization), request.getValue());
+        return ResponseEntity.ok().build();
     }
-    
 
-    //GetallInfos
-    @GetMapping 
-    public ResponseEntity<UserResponse> getAllInfos(@RequestHeader("Authorization") String authorization ){
-        //Aqui ele esta pegando o campo autorization com o bearer token 
-        String token = authorization.replace("Bearer ", "");
-        var jwt = jwtService.getClaims(token);
-        var user = accountService.getAll(UUID.fromString(jwt.getSubject()));
-        return new ResponseEntity(user, HttpStatus.ACCEPTED);
+    private UUID userId(String authorization) {
+        return UUID.fromString(jwt.getClaims(authorization.replace("Bearer ", "")).getSubject());
     }
-   
 }

@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import git.MurylloMonteiro.Ratbank.Model.DTO.LoginDTO.LoginResponse;
 
 import git.MurylloMonteiro.Ratbank.Model.DTO.LoginDTO.LoginResquest;
 import git.MurylloMonteiro.Ratbank.Model.DTO.UserDTO.UserRequest;
@@ -25,10 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginAasdccount(@RequestBody LoginResquest login) {
-
-        
-
+    public ResponseEntity<LoginResponse> loginAasdccount(@RequestBody LoginResquest login) {
         return accountService.loginAccount(login.getEmail(), login.getPassword());
     }
 

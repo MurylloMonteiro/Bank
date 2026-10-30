@@ -2,6 +2,7 @@ package git.MurylloMonteiro.Ratbank.Model;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -30,9 +31,11 @@ public class AccountModel {
     
     private LocalDate dateTimeCreate;
     
-    private double balance;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal balance = BigDecimal.ZERO;
     
-    private double negativeBalance;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal negativeBalance = BigDecimal.ZERO;
 
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "account")
